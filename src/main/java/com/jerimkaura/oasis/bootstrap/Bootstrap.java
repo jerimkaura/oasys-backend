@@ -19,7 +19,7 @@ public class Bootstrap implements CommandLineRunner {
     private ChurchService churchService;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         Role roleUser = new Role(null, "ROLE_USER");
         Role roleSuperAdmin = new Role(null, "ROLE_SUPER_ADMIN");
         Role roleAdmin = new Role(null, "ROLE_ADMIN");
