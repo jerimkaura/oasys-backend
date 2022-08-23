@@ -1,41 +1,56 @@
 package com.jerimkaura.oasis.service.user;
 
+import com.jerimkaura.oasis.config.BucketNames;
 import com.jerimkaura.oasis.domain.Church;
 import com.jerimkaura.oasis.domain.Role;
 import com.jerimkaura.oasis.domain.User;
 import com.jerimkaura.oasis.repository.RoleRepository;
 import com.jerimkaura.oasis.repository.UserRepository;
+import com.jerimkaura.oasis.service.s3.FileStore;
 import com.jerimkaura.oasis.web.models.dto.UserDto;
+import com.jerimkaura.oasis.web.models.requests.UploadProfilePictureDto;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.*;
+
+import static org.apache.http.entity.ContentType.*;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class UserServiceImpl implements  UserService, UserDetailsService {
+public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FileStore fileStore;
+
+    @Value("${oasis.aws-bucket-name}")
+    private String bucketName;
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findUserByUsername(username);
-        if (user == null){
+        if (user == null) {
             log.error("User by {} not found", username);
             throw new UsernameNotFoundException("User not found");
-        }else{
+        } else {
             log.error("User by {}  found", username);
         }
 
@@ -66,7 +81,7 @@ public class UserServiceImpl implements  UserService, UserDetailsService {
 
     @Override
     public void addRoleToUser(String username, String roleName) {
-        log.info("Adding role {}  to user by username {} ",roleName, username);
+        log.info("Adding role {}  to user by username {} ", roleName, username);
         User user = userRepository.findUserByUsername(username);
         Role role = roleRepository.findByRoleName(roleName);
         user.getRoles().add(role);
@@ -94,6 +109,34 @@ public class UserServiceImpl implements  UserService, UserDetailsService {
     public List<User> getUsersByChurch(Church church) {
         log.info("Fetching users from {} ", church.getName());
         return userRepository.findUserByChurch(church);
+    }
+
+    @Override
+    public UserDto uploadProfilePicture(UploadProfilePictureDto pictureDto) {
+        User user = userRepository.findUserById(pictureDto.getId());
+        MultipartFile multipartFile = pictureDto.getProfileImage();
+
+        if (multipartFile.isEmpty()) {
+            throw new IllegalStateException("Cannot upload empty file");
+        }
+
+        if (!Arrays.asList(IMAGE_PNG.getMimeType(),
+                IMAGE_BMP.getMimeType(),
+                IMAGE_GIF.getMimeType(),
+                IMAGE_JPEG.getMimeType()).contains(multipartFile.getContentType())) {
+            throw new IllegalStateException("File uploaded is not an image");
+        }
+
+        String fileName = user.getId() + "-profile-image";
+        String imageUrl = fileStore.uploadFile(
+                fileName,
+                bucketName,
+                "profiles",
+                multipartFile
+        );
+        log.error(imageUrl);
+        user.setProfileUrl(imageUrl);
+        return new ModelMapper().map(userRepository.save(user), UserDto.class);
     }
 
 }

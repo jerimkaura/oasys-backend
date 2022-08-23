@@ -15,20 +15,24 @@ import com.jerimkaura.oasis.web.models.dto.UserDto;
 import com.jerimkaura.oasis.web.models.requests.AddRoleToUserRequest;
 import com.jerimkaura.oasis.web.models.requests.AuthRequest;
 import com.jerimkaura.oasis.web.models.requests.RegisterRequest;
+import com.jerimkaura.oasis.web.models.requests.UploadProfilePictureDto;
 import com.jerimkaura.oasis.web.models.responses.AuthResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -173,7 +177,7 @@ public class UserController {
                 JWTVerifier verifier = JWT.require(algorithm).build();
                 DecodedJWT decodedJWT = verifier.verify(refreshToken);
                 String username = decodedJWT.getSubject();
-                com.jerimkaura.oasis.domain.User user = userService.getUserByUserName(username);
+                User user = userService.getUserByUserName(username);
                 String accessToken = JWT.create()
                         .withSubject(user.getUsername())
                         .withExpiresAt(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
@@ -208,6 +212,25 @@ public class UserController {
         } else {
             throw new RuntimeException("The refresh toke is missing");
         }
+    }
+
+    @PostMapping(
+            path = "/user/{id}/profile",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
+    )
+    ResponseEntity<BaseResponse<?>> saveSong(
+            @PathVariable Long id,
+            @RequestParam("profileImage") MultipartFile profileImage
+    ) throws IOException {
+        UploadProfilePictureDto pictureDto = new UploadProfilePictureDto(id, profileImage);
+        return new ResponseEntity<>(
+                new BaseResponse<>(
+                        "Profile Image Saved!",
+                        HttpStatus.OK.value(),
+                        userService.uploadProfilePicture(pictureDto)
+                ),
+                HttpStatus.OK
+        );
     }
 }
 
