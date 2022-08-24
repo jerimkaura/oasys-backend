@@ -11,6 +11,5 @@ public class SaveSongDto {
     private  String title;
     private  String releaseYear;
     private MultipartFile audioFile;
-
-
+    private Long artistId;
 }

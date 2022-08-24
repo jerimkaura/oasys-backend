@@ -1,5 +1,6 @@
 package com.jerimkaura.oasis.service.song;
 
+import com.jerimkaura.oasis.domain.User;
 import com.jerimkaura.oasis.web.models.dto.SongDto;
 import com.jerimkaura.oasis.web.models.requests.SaveSongDto;
 
@@ -13,6 +14,8 @@ public interface SongService {
     SongDto updateSong(Long id, SongDto songDto);
 
     List<SongDto> getSongs();
+
+    List<SongDto> getSongsByArtist(User artist);
 
     void deleteSong(Long id);
 }
