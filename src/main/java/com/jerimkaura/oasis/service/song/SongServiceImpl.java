@@ -39,18 +39,16 @@ public class SongServiceImpl implements SongService {
         if (multipartFile.isEmpty()) {
             throw new IllegalStateException("Cannot upload empty file");
         }
-        String[] strArray = songTitle.split(" ");
-        String fileNameArray1 = String.join("-", strArray).toLowerCase();
-        log.error(fileNameArray1);
+
+        String songKey = formatSongTitle(songTitle);
         String audioUrl = fileStore.uploadFile(
-                fileNameArray1,
+                songKey,
                 bucketName,
                 "songs",
                 multipartFile
         );
 
         Song song = new Song(null, saveSongDto.getTitle(), "2000", audioUrl, user);
-        log.error(audioUrl);
         return new ModelMapper().map(songRepository.save(song), SongDto.class);
     }
 
@@ -87,7 +85,20 @@ public class SongServiceImpl implements SongService {
 
     @Override
     public void deleteSong(Long id) {
-        Song song = songRepository.findSongById(id);
-        songRepository.delete(song);
+        try {
+            Song song = songRepository.findSongById(id);
+//            String key = "songs/"+formatSongTitle(song.getTitle());
+//            log.error(key);
+//            fileStore.delete(key);
+            songRepository.delete(song);
+        } catch (Exception e) {
+            log.error("ERROR here: {}", e.getMessage());
+        }
+
+    }
+
+    private String formatSongTitle(String title) {
+        String[] strArray = title.split(" ");
+        return String.join("-", strArray).toLowerCase();
     }
 }

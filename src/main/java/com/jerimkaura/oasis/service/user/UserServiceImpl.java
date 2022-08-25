@@ -1,6 +1,5 @@
 package com.jerimkaura.oasis.service.user;
 
-import com.jerimkaura.oasis.config.BucketNames;
 import com.jerimkaura.oasis.domain.Church;
 import com.jerimkaura.oasis.domain.Role;
 import com.jerimkaura.oasis.domain.User;
@@ -9,7 +8,6 @@ import com.jerimkaura.oasis.repository.UserRepository;
 import com.jerimkaura.oasis.service.s3.FileStore;
 import com.jerimkaura.oasis.web.models.dto.UserDto;
 import com.jerimkaura.oasis.web.models.requests.UploadProfilePictureDto;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -23,10 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import static org.apache.http.entity.ContentType.*;
 

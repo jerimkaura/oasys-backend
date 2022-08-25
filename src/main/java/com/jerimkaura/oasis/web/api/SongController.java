@@ -91,4 +91,18 @@ public class SongController {
                 HttpStatus.OK
         );
     }
+
+    @DeleteMapping("/songs/{id}")
+    ResponseEntity<BaseResponse<?>> deleteSongById(@PathVariable Long id) {
+        songService.deleteSong(id);
+        return new ResponseEntity<>(
+                new BaseResponse<>(
+                        "Success",
+                        HttpStatus.NO_CONTENT.value(),
+                        "Song deleted!"
+                ),
+                HttpStatus.NO_CONTENT
+        );
+    }
+
 }
