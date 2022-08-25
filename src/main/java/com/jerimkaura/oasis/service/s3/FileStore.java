@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +21,10 @@ import java.io.IOException;
 public class FileStore {
     private final AmazonS3 amazonS3;
     private final Logger logger = LoggerFactory.getLogger(FileStore.class);
+
+    @Value("${oasis.aws-bucket-name}")
+    private String bucketName;
+
     public String uploadFile(
             String fileName, String
             bucketName, String folder,
@@ -46,4 +51,12 @@ public class FileStore {
         return filePath;
     }
 
+    public void delete(String objectKey) {
+        try {
+            amazonS3.deleteObject(bucketName, objectKey);
+        } catch (AmazonServiceException e) {
+            System.err.println(e.getErrorMessage());
+            System.exit(1);
+        }
+    }
 }
