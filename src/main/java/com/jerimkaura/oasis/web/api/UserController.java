@@ -33,10 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -63,7 +60,8 @@ public class UserController {
                 null,
                 registerRequest.getPassword(),
                 new ArrayList<>(),
-                null
+                null,
+                new HashSet<>()
         );
         return new ResponseEntity<>(
                 new BaseResponse<>(
@@ -218,7 +216,7 @@ public class UserController {
             path = "/user/{id}/profile",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
-    ResponseEntity<BaseResponse<?>> saveSong(
+    ResponseEntity<BaseResponse<?>> saveProfile(
             @PathVariable Long id,
             @RequestParam("profileImage") MultipartFile profileImage
     ) throws IOException {

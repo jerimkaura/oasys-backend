@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 public class AWSConfig {
     @Value("${oasis.aws-id}")
     private String awsId;
+    
 
     @Value("${oasis.aws-secret}")
     private String awsKey;

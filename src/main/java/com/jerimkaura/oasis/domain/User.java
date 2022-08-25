@@ -3,11 +3,11 @@ package com.jerimkaura.oasis.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Getter
@@ -31,6 +31,13 @@ public class User {
     @JoinColumn(name = "church_id")
     @JsonIgnore
     private Church church;
+
+
+    @EqualsAndHashCode.Exclude
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "artist", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ToString.Exclude
+    private Set<Song> songs = new HashSet<>();
 
 
     @Override
