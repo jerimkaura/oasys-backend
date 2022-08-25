@@ -10,7 +10,6 @@ import org.springframework.context.annotation.PropertySource;
 @EnableConfigurationProperties(OasisProperties.class)
 @PropertySource("classpath:/application-dev.properties")
 public class OasisApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(OasisApplication.class, args);
     }
