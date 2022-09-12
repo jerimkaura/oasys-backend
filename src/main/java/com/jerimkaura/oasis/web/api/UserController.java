@@ -7,8 +7,10 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.jerimkaura.oasis.domain.Church;
 import com.jerimkaura.oasis.domain.Role;
 import com.jerimkaura.oasis.domain.User;
+import com.jerimkaura.oasis.repository.UserRepository;
 import com.jerimkaura.oasis.service.church.ChurchService;
 import com.jerimkaura.oasis.service.user.UserService;
+import com.jerimkaura.oasis.utils.EmailValidator;
 import com.jerimkaura.oasis.utils.JwtUtils;
 import com.jerimkaura.oasis.web.BaseResponse;
 import com.jerimkaura.oasis.web.models.dto.UserDto;
@@ -48,29 +50,49 @@ public class UserController {
     private final ChurchService churchService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+    private final EmailValidator emailValidator;
+    private final UserRepository userRepository;
 
 
     @PostMapping("/register")
     public ResponseEntity<BaseResponse<?>> register(@RequestBody RegisterRequest registerRequest) {
+        boolean isEmailValid = emailValidator.test(registerRequest.getEmail());
+        if(!isEmailValid){
+            throw new IllegalStateException("Email is not valid");
+        }
         User user = new User(
                 null,
                 registerRequest.getFirstname(),
                 registerRequest.getLastname(),
                 registerRequest.getEmail(),
                 null,
+                false,
                 registerRequest.getPassword(),
                 new ArrayList<>(),
+
                 null,
                 new HashSet<>()
         );
-        return new ResponseEntity<>(
-                new BaseResponse<>(
-                        "Success",
-                        HttpStatus.CREATED.value(),
-                        new ModelMapper().map(userService.saveUser(user), UserDto.class)
-                ),
-                HttpStatus.CREATED
-        );
+        User userInDatabase = userRepository.findUserByUsername(user.getUsername());
+        if (userInDatabase != null) {
+            return new ResponseEntity<>(
+                    new BaseResponse<>(
+                            "Success",
+                            HttpStatus.OK.value(),
+                            "Email already taken"
+                    ),
+                    HttpStatus.OK
+            );
+        }else {
+            return new ResponseEntity<>(
+                    new BaseResponse<>(
+                            "Success",
+                            HttpStatus.CREATED.value(),
+                            userService.saveUser(user)
+                    ),
+                    HttpStatus.CREATED
+            );
+        }
     }
 
     @PostMapping("/login")
@@ -229,6 +251,11 @@ public class UserController {
                 ),
                 HttpStatus.OK
         );
+    }
+
+    @GetMapping(path = "register/confirm-token")
+    public String confirm(@RequestParam("token") String token) {
+        return userService.confirmToken(token);
     }
 }
 

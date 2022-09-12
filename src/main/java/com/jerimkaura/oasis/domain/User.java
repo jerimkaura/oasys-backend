@@ -22,6 +22,7 @@ public class User {
     private String lastName;
     private String username;
     private String profileUrl;
+    private Boolean verified = false;
     @JsonIgnore
     private String password;
     @ManyToMany(fetch = FetchType.EAGER)

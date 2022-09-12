@@ -8,10 +8,12 @@ import com.jerimkaura.oasis.web.models.requests.UploadProfilePictureDto;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
-    User saveUser(User user);
+    String saveUser(User user);
     Role saveRole(Role role);
+    String confirmToken(String token);
     void addRoleToUser(String username, String roleName);
     User getUserByUserName(String username);
     User getUserById(Long id);
