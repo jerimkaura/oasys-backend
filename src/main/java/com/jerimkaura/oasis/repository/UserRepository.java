@@ -11,13 +11,17 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     User findUserByUsername(String username);
+
     List<User> findUserByChurch(Church church);
+
     List<User> findAll();
+
     User findUserById(Long id);
 
     @Transactional
     @Modifying
-    @Query("UPDATE User a " +
-            "SET a.verified = TRUE WHERE a.username = ?1")
-    int verifyAccount(String username);
+    @Query("UPDATE User a " + "SET a.verified = TRUE WHERE a.username = ?1")
+    void verifyAccount(String username);
+
+    User findByResetPasswordToken(String token);
 }

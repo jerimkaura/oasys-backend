@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -34,6 +35,7 @@ import static org.apache.http.entity.ContentType.*;
 @Transactional
 @Slf4j
 public class UserServiceImpl implements UserService, UserDetailsService {
+    private static final long EXPIRE_TOKEN_AFTER_MINUTES = 5;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -85,32 +87,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String link = "http://localhost:8080/api/v1/register/confirm-token?token=" + token;
         emailSender.sendEmail(user.getUsername(), buildEmail(user.getFirstName(), link));
         return token;
-    }
-
-    @Transactional
-    public String confirmToken(String token) {
-        ConfirmationToken confirmationToken = confirmationTokenService
-                .getToken(token)
-                .orElseThrow(() ->
-                        new IllegalStateException("token not found"));
-
-        if (confirmationToken.getConfirmedAt() != null) {
-            throw new IllegalStateException("email already confirmed");
-        }
-
-        LocalDateTime expiredAt = confirmationToken.getExpiresAt();
-
-        if (expiredAt.isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("token expired");
-        }
-
-        confirmationTokenService.setConfirmedAt(token);
-        verifyAccount(confirmationToken.getUser().getUsername());
-        return "confirmed";
-    }
-
-    public int verifyAccount(String username) {
-        return userRepository.verifyAccount(username);
     }
 
     @Override
@@ -177,6 +153,83 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         log.error(imageUrl);
         user.setProfileUrl(imageUrl);
         return new ModelMapper().map(userRepository.save(user), UserDto.class);
+    }
+
+    @Transactional
+    public String confirmToken(String token) {
+        ConfirmationToken confirmationToken = confirmationTokenService
+                .getToken(token)
+                .orElseThrow(() ->
+                        new IllegalStateException("token not found"));
+
+        if (confirmationToken.getConfirmedAt() != null) {
+            throw new IllegalStateException("email already confirmed");
+        }
+
+        LocalDateTime expiredAt = confirmationToken.getExpiresAt();
+
+        if (expiredAt.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("token expired");
+        }
+
+        confirmationTokenService.setConfirmedAt(token);
+        verifyAccount(confirmationToken.getUser().getUsername());
+        return "confirmed";
+    }
+
+    public void verifyAccount(String username) {
+        userRepository.verifyAccount(username);
+    }
+
+    @Override
+    public String forgotPassword(String username) {
+        Optional<User> userOptional = Optional
+                .ofNullable(userRepository.findUserByUsername(username));
+
+        if (userOptional.isEmpty()) {
+            return "Invalid email id.";
+        }
+
+        UUID token = UUID.randomUUID();
+
+        User user = userOptional.get();
+
+        user.setResetPasswordToken(token.toString());
+
+        user.setTokenCreationDate(LocalDateTime.now());
+        user = userRepository.save(user);
+        return user.getResetPasswordToken();
+    }
+
+    @Override
+    public String resetPassword(String token, String password) {
+
+        Optional<User> userOptional = Optional
+                .ofNullable(userRepository.findByResetPasswordToken(token));
+
+        if (userOptional.isEmpty()) {
+            return "Invalid token.";
+        }
+
+        LocalDateTime tokenCreationDate = userOptional.get().getTokenCreationDate();
+
+        if (isTokenExpired(tokenCreationDate)) {
+            return "Token expired.";
+
+        }
+        User user = userOptional.get();
+        user.setPassword(passwordEncoder.encode(password));
+        user.setResetPasswordToken(null);
+        user.setTokenCreationDate(null);
+        userRepository.save(user);
+        return "Your password successfully updated.";
+    }
+
+    private boolean isTokenExpired(final LocalDateTime tokenCreationDate) {
+        LocalDateTime now = LocalDateTime.now();
+        Duration diff = Duration.between(tokenCreationDate, now);
+
+        return diff.toMinutes() >= EXPIRE_TOKEN_AFTER_MINUTES;
     }
 
 

@@ -31,9 +31,9 @@ public class Bootstrap implements CommandLineRunner {
         userService.saveRole(roleAdmin);
         userService.saveRole(roleSuperAdmin);
 
-        User user = new User(null, "Jerim", "User", "jerimkaura001@gmail.com", "profile.png", false, "1234", new ArrayList<>(), null, new HashSet<>());
-        User admin = new User(null, "Jerim", "Admin", "mercymeave@gmail.com", null, false, "1234", new ArrayList<>(), null, new HashSet<>());
-        User superAdmin = new User(null, "Jerim", "SuperAdmin", "jerimotieno@students.uonbi.ac.ke", null, false, "1234", new ArrayList<>(), null, new HashSet<>());
+        User user = new User(null, "Jerim", "User", "jerimkaura001@gmail.com", "profile.png", false, null, null, "1234", new ArrayList<>(), null, new HashSet<>());
+        User admin = new User(null, "Jerim", "Admin", "mercymeave@gmail.com", null, false, null,null, "1234", new ArrayList<>(), null, new HashSet<>());
+        User superAdmin = new User(null, "Jerim", "SuperAdmin", "jerimotieno@students.uonbi.ac.ke", null, false, null, null, "1234", new ArrayList<>(), null, new HashSet<>());
 
         userService.saveUser(user);
         userService.saveUser(admin);

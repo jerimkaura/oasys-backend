@@ -7,6 +7,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -22,7 +23,16 @@ public class User {
     private String lastName;
     private String username;
     private String profileUrl;
+
+    @JsonIgnore
     private Boolean verified = false;
+
+    @JsonIgnore
+    private String resetPasswordToken;
+
+    @JsonIgnore
+    private LocalDateTime tokenCreationDate;
+
     @JsonIgnore
     private String password;
     @ManyToMany(fetch = FetchType.EAGER)
