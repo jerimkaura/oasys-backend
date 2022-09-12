@@ -14,10 +14,7 @@ import com.jerimkaura.oasis.utils.EmailValidator;
 import com.jerimkaura.oasis.utils.JwtUtils;
 import com.jerimkaura.oasis.web.BaseResponse;
 import com.jerimkaura.oasis.web.models.dto.UserDto;
-import com.jerimkaura.oasis.web.models.requests.AddRoleToUserRequest;
-import com.jerimkaura.oasis.web.models.requests.AuthRequest;
-import com.jerimkaura.oasis.web.models.requests.RegisterRequest;
-import com.jerimkaura.oasis.web.models.requests.UploadProfilePictureDto;
+import com.jerimkaura.oasis.web.models.requests.*;
 import com.jerimkaura.oasis.web.models.responses.AuthResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +40,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/auth")
 @Slf4j
 public class UserController {
     private final UserService userService;
@@ -67,6 +64,8 @@ public class UserController {
                 registerRequest.getEmail(),
                 null,
                 false,
+                null,
+                null,
                 registerRequest.getPassword(),
                 new ArrayList<>(),
 
@@ -253,9 +252,41 @@ public class UserController {
         );
     }
 
-    @GetMapping(path = "register/confirm-token")
+    @GetMapping(path = "/confirm-token")
     public String confirm(@RequestParam("token") String token) {
         return userService.confirmToken(token);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<BaseResponse<?>> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        String response = userService.forgotPassword(request.getUsername());
+        if (!response.startsWith("Invalid")) {
+            return new ResponseEntity<>(
+                    new BaseResponse<>(
+                            "Success",
+                            HttpStatus.OK.value(),
+                            response
+                    ), HttpStatus.OK
+            );
+        }
+        return new ResponseEntity<>(
+                new BaseResponse<>(
+                        "Success",
+                        HttpStatus.OK.value(),
+                        "Invalid email address"
+                ), HttpStatus.OK
+        );
+    }
+
+    @PutMapping("/reset-password")
+    public ResponseEntity<BaseResponse<?>> resetPassword(@RequestBody ResetPasswordRequest request) {
+        return new ResponseEntity<>(
+                new BaseResponse<>(
+                        "Success",
+                        HttpStatus.OK.value(),
+                        userService.resetPassword(request.getToken(), request.getPassword())
+                ), HttpStatus.OK
+        );
     }
 }
 
