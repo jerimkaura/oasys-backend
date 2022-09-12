@@ -25,7 +25,7 @@ public class Church {
 
     @EqualsAndHashCode.Exclude
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @OneToMany(mappedBy = "church", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "church", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @ToString.Exclude
     private Set<User> members = new HashSet<>();
 

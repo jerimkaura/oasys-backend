@@ -15,7 +15,7 @@ import javax.transaction.Transactional;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class ChurchServiceImpl implements  ChurchService{
+public class ChurchServiceImpl implements ChurchService {
     private final ChurchRepository churchRepository;
     private final UserRepository userRepository;
 
@@ -26,12 +26,10 @@ public class ChurchServiceImpl implements  ChurchService{
     }
 
     @Override
-    public void enrollUserToChurch(String username, Long id) {
-        User user = userRepository.findUserByUsername(username);
-        Church church = churchRepository.findChurchById(id);
+    public void enrollUserToChurch(User user, Long churchId) {
+        Church church = churchRepository.findChurchById(churchId);
         user.setChurch(church);
         church.getMembers().add(user);
-        log.info("Enrolling {} to {} ", username, id);
     }
 
     @Override

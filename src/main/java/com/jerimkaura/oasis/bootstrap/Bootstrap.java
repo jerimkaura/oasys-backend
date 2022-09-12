@@ -31,9 +31,9 @@ public class Bootstrap implements CommandLineRunner {
         userService.saveRole(roleAdmin);
         userService.saveRole(roleSuperAdmin);
 
-        User user = new User(null, "Jerim", "User", "jerimUser", "profile.png", "1234", new ArrayList<>(), null, new HashSet<>());
-        User admin = new User(null, "Jerim", "Admin", "jerimAdmin", null, "1234", new ArrayList<>(), null, new HashSet<>());
-        User superAdmin = new User(null, "Jerim", "SuperAdmin", "jerimSuperAdmin", null, "1234", new ArrayList<>(), null, new HashSet<>());
+        User user = new User(null, "Jerim", "User", "jerimkaura001@gmail.com", "profile.png", false, "1234", new ArrayList<>(), null, new HashSet<>());
+        User admin = new User(null, "Jerim", "Admin", "mercymeave@gmail.com", null, false, "1234", new ArrayList<>(), null, new HashSet<>());
+        User superAdmin = new User(null, "Jerim", "SuperAdmin", "jerimotieno@students.uonbi.ac.ke", null, false, "1234", new ArrayList<>(), null, new HashSet<>());
 
         userService.saveUser(user);
         userService.saveUser(admin);
@@ -50,9 +50,9 @@ public class Bootstrap implements CommandLineRunner {
         churchService.saveChurch(church1);
         churchService.saveChurch(church2);
 
-        churchService.enrollUserToChurch(user.getUsername(), church1.getId());
-        churchService.enrollUserToChurch(admin.getUsername(), church1.getId());
-        churchService.enrollUserToChurch(superAdmin.getUsername(), church1.getId());
+        churchService.enrollUserToChurch(user, church1.getId());
+        churchService.enrollUserToChurch(admin, church1.getId());
+        churchService.enrollUserToChurch(superAdmin, church1.getId());
 
         userService.getUsersByChurch(church1);
 
