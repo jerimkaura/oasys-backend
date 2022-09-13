@@ -83,6 +83,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 null,
                 user
         );
+
         confirmationTokenService.saveConfirmationToken(confirmationToken);
         String link = "http://localhost:8080/api/v1/register/confirm-token?token=" + token;
         emailSender.sendEmail(user.getUsername(), buildEmail(user.getFirstName(), link));
@@ -203,7 +204,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public String resetPassword(String token, String password) {
-
         Optional<User> userOptional = Optional
                 .ofNullable(userRepository.findByResetPasswordToken(token));
 
