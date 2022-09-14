@@ -1,2 +1,0 @@
-web: env DATABASE_URL=$JDBC_DATABASE_URL target/Oasis-0.0.1-SNAPSHOT.jar
-
