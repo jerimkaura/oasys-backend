@@ -57,17 +57,17 @@ public class JwtUtils {
         return null;
     }
 
-    public   void   verifyToken(String token){
-        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-        JWTVerifier verifier = JWT.require(algorithm).build();
-        DecodedJWT decodedJWT = verifier.verify(token);
-        String username = decodedJWT.getSubject();
-        String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
-        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        stream(roles).forEach(role -> authorities.add(new SimpleGrantedAuthority(role)));
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(username, null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-    }
+//    public   void   verifyToken(String token){
+//        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+//        JWTVerifier verifier = JWT.require(algorithm).build();
+//        DecodedJWT decodedJWT = verifier.verify(token);
+//        String username = decodedJWT.getSubject();
+//        String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
+//        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+//        stream(roles).forEach(role -> authorities.add(new SimpleGrantedAuthority(role)));
+//        UsernamePasswordAuthenticationToken authenticationToken =
+//                new UsernamePasswordAuthenticationToken(username, null, authorities);
+//        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+//    }
 
 }
