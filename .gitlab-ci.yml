@@ -4,7 +4,7 @@ stages:
   - build and push docker image
   - deploy
 test_job:
-  image: openjdk:18-jdk-slim
+  image: openjdk:11-jdk-slim
   stage: test
   script:
     - pwd
@@ -18,7 +18,7 @@ test_job:
     - development
 
 build:
-  image: openjdk:18-jdk-slim
+  image: openjdk:11-jdk-slim
   stage: build jar
   script:
     - mvn clean install -Dspring.profiles.active=dev && mvn package -B -e -Dspring.profiles.active=dev
