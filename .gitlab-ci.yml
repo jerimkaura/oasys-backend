@@ -37,6 +37,9 @@ docker build:
     - docker build -t jerimkaura/oasis .
     - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD docker.io
     - docker push $DOCKER_REPO:latest
+  environment:
+    name: oasis
+
   only:
     - master
     - development
