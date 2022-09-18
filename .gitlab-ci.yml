@@ -10,6 +10,7 @@ test_job:
     - pwd
     - mvn clean
     - mvn compile
+
   tags:
     - test
   only:
