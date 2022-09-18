@@ -1,48 +1,48 @@
 stages:
-  - test
-  - build jar
-  - build and push docker image
+#  - test
+#  - build jar
+#  - build and push docker image
   - deploy
 
-test_job:
-  image: maven:latest
-  stage: test
-  script:
-    - pwd
-    - mvn clean
-    - mvn compile
-
-  tags:
-    - test
-  only:
-    - master
-
-build:
-  image: maven:latest
-  stage: build jar
-  script:
-    - mvn clean install -Dspring.profiles.active=dev && mvn package -B -e -Dspring.profiles.active=dev
-  artifacts:
-    paths:
-      - target/*.jar
-  only:
-    - master
-    - development
-docker build:
-  services:
-    - docker:19.03.13-dind
-  image: docker:19.03.13-dind
-  stage: build and push docker image
-  script:
-    - docker build -t jerimkaura/oasis .
-    - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD docker.io
-    - docker push $DOCKER_REPO:latest
-  environment:
-    name: oasis
-
-  only:
-    - master
-    - development
+#test_job:
+#  image: maven:latest
+#  stage: test
+#  script:
+#    - pwd
+#    - mvn clean
+#    - mvn compile
+#
+#  tags:
+#    - test
+#  only:
+#    - master
+#
+#build:
+#  image: maven:latest
+#  stage: build jar
+#  script:
+#    - mvn clean install -Dspring.profiles.active=dev && mvn package -B -e -Dspring.profiles.active=dev
+#  artifacts:
+#    paths:
+#      - target/*.jar
+#  only:
+#    - master
+#    - development
+#docker build:
+#  services:
+#    - docker:19.03.13-dind
+#  image: docker:19.03.13-dind
+#  stage: build and push docker image
+#  script:
+#    - docker build -t jerimkaura/oasis .
+#    - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD docker.io
+#    - docker push $DOCKER_REPO:latest
+#  environment:
+#    name: oasis
+#
+#  only:
+#    - master
+#    - development
 
 deploy:
   image: ubuntu:latest
