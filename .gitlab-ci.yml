@@ -3,6 +3,7 @@ stages:
   - build jar
   - build and push docker image
   - deploy
+
 test_job:
   image: maven:latest
   stage: test
@@ -15,7 +16,6 @@ test_job:
     - test
   only:
     - master
-    - development
 
 build:
   image: maven:latest
