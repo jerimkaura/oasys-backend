@@ -1,27 +1,29 @@
-version: '3.1'
+version: '3.3'
 services:
-  application:
-    image: 'jerimkaura/oasis'
+  nginx:
+    container_name: nginx
+    image: nginx:1.13
+    restart: always
     ports:
-      - "8080:8080"
+      - 80:80
+      - 443:443
+    network_mode: host
+    hostname: localhost
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
     depends_on:
-      - PostgreSQL
+      - springboot
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/postgres
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-
-  database:
-    image: postgres
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
+      TZ: Asia/Jakarta
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: "exit 0"
+  springboot:
+    restart: always
+    image: jerimkaura/oasis
+    container_name: oasis
+    ports:
+      - 8080:8080
+    network_mode: host
+    hostname: localhost
+    healthcheck:
+      test: "exit 0"
