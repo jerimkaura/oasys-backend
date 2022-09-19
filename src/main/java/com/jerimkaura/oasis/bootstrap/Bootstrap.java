@@ -5,21 +5,30 @@ import com.jerimkaura.oasis.domain.Role;
 import com.jerimkaura.oasis.domain.User;
 import com.jerimkaura.oasis.service.church.ChurchService;
 import com.jerimkaura.oasis.service.user.UserService;
+import io.github.cdimascio.dotenv.Dotenv;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import static com.sun.activation.registries.LogSupport.log;
+
+
 @Component
 @AllArgsConstructor
+@Slf4j
 public class Bootstrap implements CommandLineRunner {
     private UserService userService;
     private ChurchService churchService;
 
     @Override
     public void run(String... args) {
+        Dotenv dotenv = Dotenv.load();
+        dotenv.get("SPRING_DATASOURCE_URL");
+        log.error(dotenv.get("SPRING_DATASOURCE_URL"));
 //        Role roleUser = new Role(null, "ROLE_USER");
 //        Role roleSuperAdmin = new Role(null, "ROLE_SUPER_ADMIN");
 //        Role roleAdmin = new Role(null, "ROLE_ADMIN");

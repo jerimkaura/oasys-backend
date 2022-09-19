@@ -35,3 +35,4 @@ build/
 
 ### aplication keys
 application-dev.properties
+.env
