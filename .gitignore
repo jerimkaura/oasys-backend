@@ -35,4 +35,4 @@ build/
 
 ### aplication keys
 application-dev.properties
-.env
+src/main/resources/application-dev.properties
