@@ -38,3 +38,4 @@ application-dev.properties
 src/main/resources/application-dev.properties
 src/main/resources/propduction.properties
 src/main/resources/config.properties
+src/main/resources/application-config.properties
