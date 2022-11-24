@@ -13,9 +13,10 @@ import com.jerimkaura.oasis.service.user.UserService;
 import com.jerimkaura.oasis.utils.EmailValidator;
 import com.jerimkaura.oasis.utils.JwtUtils;
 import com.jerimkaura.oasis.web.BaseResponse;
-import com.jerimkaura.oasis.web.models.dto.UserDto;
-import com.jerimkaura.oasis.web.models.requests.*;
-import com.jerimkaura.oasis.web.models.responses.AuthResponse;
+import com.jerimkaura.oasis.web.api.models.dto.SingleUserDto;
+import com.jerimkaura.oasis.web.api.models.dto.UserDto;
+import com.jerimkaura.oasis.web.api.models.requests.*;
+import com.jerimkaura.oasis.web.api.models.responses.AuthResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -40,7 +41,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1/")
 @Slf4j
 public class UserController {
     private final UserService userService;
@@ -51,10 +52,10 @@ public class UserController {
     private final UserRepository userRepository;
 
 
-    @PostMapping("/register")
+    @PostMapping("/auth/register")
     public ResponseEntity<BaseResponse<?>> register(@RequestBody RegisterRequest registerRequest) {
         boolean isEmailValid = emailValidator.test(registerRequest.getEmail());
-        if(!isEmailValid){
+        if (!isEmailValid) {
             throw new IllegalStateException("Email is not valid");
         }
         User user = new User(
@@ -62,6 +63,9 @@ public class UserController {
                 registerRequest.getFirstname(),
                 registerRequest.getLastname(),
                 registerRequest.getEmail(),
+                null,
+                null,
+                null,
                 null,
                 false,
                 null,
@@ -82,19 +86,19 @@ public class UserController {
                     ),
                     HttpStatus.OK
             );
-        }else {
+        } else {
             return new ResponseEntity<>(
                     new BaseResponse<>(
                             "Success",
                             HttpStatus.CREATED.value(),
-                            userService.saveUser(user)
+                            new ModelMapper().map(userService.saveUser(user), UserDto.class)
                     ),
                     HttpStatus.CREATED
             );
         }
     }
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         try {
             UsernamePasswordAuthenticationToken authenticationToken
@@ -115,7 +119,7 @@ public class UserController {
                     new BaseResponse<>(
                             "Error",
                             HttpStatus.UNAUTHORIZED.value(),
-                            e.getMessage()
+                            e.getLocalizedMessage()
                     ),
                     HttpStatus.UNAUTHORIZED
             );
@@ -143,7 +147,19 @@ public class UserController {
                 new BaseResponse<>(
                         "Success",
                         HttpStatus.CREATED.value(),
-                        new ModelMapper().map(userService.getUserById(id), UserDto.class)
+                        new ModelMapper().map(userService.getUserById(id), SingleUserDto.class)
+                ),
+                HttpStatus.CREATED
+        );
+    }
+
+    @GetMapping("/users/update-profile")
+    public ResponseEntity<BaseResponse<?>> updateProfile(@RequestBody UpdateUserProfileRequest updateProfileRequest) {
+        return new ResponseEntity<>(
+                new BaseResponse<>(
+                        "Success",
+                        HttpStatus.CREATED.value(),
+                        new ModelMapper().map(userService.updateProfile(updateProfileRequest), SingleUserDto.class)
                 ),
                 HttpStatus.CREATED
         );
@@ -234,7 +250,7 @@ public class UserController {
     }
 
     @PostMapping(
-            path = "/user/{id}/profile",
+            path = "/users/{id}/profile-picture",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}
     )
     ResponseEntity<BaseResponse<?>> saveProfile(

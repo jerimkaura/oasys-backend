@@ -5,7 +5,7 @@ import com.jerimkaura.oasis.domain.User;
 import com.jerimkaura.oasis.service.song.SongService;
 import com.jerimkaura.oasis.service.user.UserService;
 import com.jerimkaura.oasis.web.BaseResponse;
-import com.jerimkaura.oasis.web.models.requests.SaveSongDto;
+import com.jerimkaura.oasis.web.api.models.requests.SaveSongDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

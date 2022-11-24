@@ -1,4 +1,4 @@
-package com.jerimkaura.oasis.web.models.dto;
+package com.jerimkaura.oasis.web.api.models.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

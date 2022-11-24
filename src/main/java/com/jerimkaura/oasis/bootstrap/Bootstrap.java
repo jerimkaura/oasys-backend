@@ -6,14 +6,17 @@ import com.jerimkaura.oasis.domain.User;
 import com.jerimkaura.oasis.service.church.ChurchService;
 import com.jerimkaura.oasis.service.user.UserService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 
+
 @Component
 @AllArgsConstructor
+@Slf4j
 public class Bootstrap implements CommandLineRunner {
     private UserService userService;
     private ChurchService churchService;

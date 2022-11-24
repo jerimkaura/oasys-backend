@@ -23,6 +23,9 @@ public class User {
     private String lastName;
     private String username;
     private String profileUrl;
+    private String gender;
+    private String phoneNumber;
+    private String location;
 
     @JsonIgnore
     private Boolean verified = false;
@@ -35,10 +38,12 @@ public class User {
 
     @JsonIgnore
     private String password;
+
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
     private Collection<Role> roles = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JoinColumn(name = "church_id")
     @JsonIgnore
     private Church church;
@@ -46,8 +51,9 @@ public class User {
 
     @EqualsAndHashCode.Exclude
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @OneToMany(mappedBy = "artist", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "artist", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @ToString.Exclude
+    @JsonIgnore
     private Set<Song> songs = new HashSet<>();
 
 

@@ -1,8 +1,8 @@
 package com.jerimkaura.oasis.service.song;
 
 import com.jerimkaura.oasis.domain.User;
-import com.jerimkaura.oasis.web.models.dto.SongDto;
-import com.jerimkaura.oasis.web.models.requests.SaveSongDto;
+import com.jerimkaura.oasis.web.api.models.dto.SongDto;
+import com.jerimkaura.oasis.web.api.models.requests.SaveSongDto;
 
 import java.util.List;
 
