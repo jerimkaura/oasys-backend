@@ -153,30 +153,18 @@ public class UserController {
         );
     }
 
-    @GetMapping("/users/update-profile")
+    @PostMapping("/users/update-profile")
     public ResponseEntity<BaseResponse<?>> updateProfile(@RequestBody UpdateUserProfileRequest updateProfileRequest) {
         return new ResponseEntity<>(
                 new BaseResponse<>(
                         "Success",
-                        HttpStatus.CREATED.value(),
+                        HttpStatus.OK.value(),
                         new ModelMapper().map(userService.updateProfile(updateProfileRequest), SingleUserDto.class)
                 ),
                 HttpStatus.CREATED
         );
     }
 
-    @GetMapping("/church/{id}/users")
-    public ResponseEntity<?> getUsersByChurch(@PathVariable Long id) {
-        Church church = churchService.getChurch(id);
-        return new ResponseEntity<>(
-                new BaseResponse<>(
-                        "Success",
-                        HttpStatus.OK.value(),
-                        userService.getUsersByChurch(church).stream().map(user -> new ModelMapper().map(user, UserDto.class))
-                ),
-                HttpStatus.OK
-        );
-    }
 
     @PostMapping("/roles")
     public ResponseEntity<BaseResponse<Role>> saveRole(@RequestBody Role role) {
@@ -202,7 +190,7 @@ public class UserController {
         );
     }
 
-    @GetMapping("/token/refresh")
+    @GetMapping("auth/token/refresh")
     public ResponseEntity<BaseResponse<?>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -268,12 +256,12 @@ public class UserController {
         );
     }
 
-    @GetMapping(path = "/confirm-token")
+    @GetMapping(path = "auth/confirm-token")
     public String confirm(@RequestParam("token") String token) {
         return userService.confirmToken(token);
     }
 
-    @PostMapping("/forgot-password")
+    @PostMapping("/auth/forgot-password")
     public ResponseEntity<BaseResponse<?>> forgotPassword(@RequestBody ForgotPasswordRequest request) {
         String response = userService.forgotPassword(request.getUsername());
         if (!response.startsWith("Invalid")) {
@@ -294,7 +282,7 @@ public class UserController {
         );
     }
 
-    @PutMapping("/reset-password")
+    @PutMapping("auth/reset-password")
     public ResponseEntity<BaseResponse<?>> resetPassword(@RequestBody ResetPasswordRequest request) {
         return new ResponseEntity<>(
                 new BaseResponse<>(
