@@ -1,4 +1,4 @@
-package com.jerimkaura.oasis.web.models.requests;
+package com.jerimkaura.oasis.web.api.models.requests;
 
 import lombok.Data;
 

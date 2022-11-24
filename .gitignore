@@ -36,3 +36,4 @@ build/
 ### aplication keys
 application-dev.properties
 src/main/resources/config.properties
+src/main/resources/application-dev.properties

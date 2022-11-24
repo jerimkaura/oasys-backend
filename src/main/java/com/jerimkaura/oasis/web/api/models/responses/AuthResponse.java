@@ -1,4 +1,4 @@
-package com.jerimkaura.oasis.web.models.responses;
+package com.jerimkaura.oasis.web.api.models.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

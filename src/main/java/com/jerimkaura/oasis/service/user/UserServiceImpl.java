@@ -9,8 +9,9 @@ import com.jerimkaura.oasis.repository.UserRepository;
 import com.jerimkaura.oasis.service.confirmationtoken.ConfirmationTokenService;
 import com.jerimkaura.oasis.service.email.EmailSender;
 import com.jerimkaura.oasis.service.s3.FileStore;
-import com.jerimkaura.oasis.web.models.dto.UserDto;
-import com.jerimkaura.oasis.web.models.requests.UploadProfilePictureDto;
+import com.jerimkaura.oasis.web.api.models.dto.UserDto;
+import com.jerimkaura.oasis.web.api.models.requests.UpdateUserProfileRequest;
+import com.jerimkaura.oasis.web.api.models.requests.UploadProfilePictureDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -35,7 +36,7 @@ import static org.apache.http.entity.ContentType.*;
 @Transactional
 @Slf4j
 public class UserServiceImpl implements UserService, UserDetailsService {
-    private static final long EXPIRE_TOKEN_AFTER_MINUTES = 5;
+    private static final long EXPIRE_TOKEN_AFTER_MINUTES = 15;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -50,17 +51,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findUserByUsername(username);
-        if (user == null) {
-            log.error("User by {} not found", username);
-            throw new UsernameNotFoundException("User not found");
-        } else {
-            log.error("User by {}  found", username);
-        }
-
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-
         user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getRoleName())));
-
         return new org
                 .springframework
                 .security
@@ -70,8 +62,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public String saveUser(User user) {
-        log.info("Saving {} to database", user.getFirstName());
+    public User saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         String token = UUID.randomUUID().toString();
         userRepository.save(user);
@@ -85,20 +76,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         );
 
         confirmationTokenService.saveConfirmationToken(confirmationToken);
-        String link = "http://localhost:8080/api/v1/register/confirm-token?token=" + token;
+        String link = "https://api.oasysafrica.org/api/v1/auth/confirm-token?token=" + token;
         emailSender.sendEmail(user.getUsername(), buildEmail(user.getFirstName(), link));
-        return token;
+        return user;
     }
 
     @Override
     public Role saveRole(Role role) {
-        log.info("Saving {} to database", role.getRoleName());
         return roleRepository.save(role);
     }
 
     @Override
     public void addRoleToUser(String username, String roleName) {
-        log.info("Adding role {}  to user by username {} ", roleName, username);
         User user = userRepository.findUserByUsername(username);
         Role role = roleRepository.findByRoleName(roleName);
         user.getRoles().add(role);
@@ -112,19 +101,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User getUserByUserName(String username) {
-        log.info("Getting  user by username {} from database", username);
         return userRepository.findUserByUsername(username);
     }
 
     @Override
     public List<User> getUsers() {
-        log.info("Fetching users from database");
         return userRepository.findAll();
     }
 
     @Override
     public List<User> getUsersByChurch(Church church) {
-        log.info("Fetching users from {} ", church.getName());
         return userRepository.findUserByChurch(church);
     }
 
@@ -225,6 +211,41 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return "Your password successfully updated.";
     }
 
+    @Override
+    public User updateProfile(UpdateUserProfileRequest updateUserProfileRequest) {
+        log.error(String.valueOf(updateUserProfileRequest));
+        Long userId = updateUserProfileRequest.getId();
+        String firstName = updateUserProfileRequest.getFirstName();
+        String lastName = updateUserProfileRequest.getLastName();
+        String gender = updateUserProfileRequest.getGender();
+        String phoneNumber = updateUserProfileRequest.getPhoneNumber();
+        String location = updateUserProfileRequest.getLocation();
+
+        User user = userRepository.findUserById(userId);
+
+        if (firstName != null) {
+            user.setFirstName(firstName);
+        }
+
+        if (lastName != null) {
+            user.setLastName(lastName);
+        }
+
+        if (gender != null) {
+            user.setGender(gender);
+        }
+
+        if (phoneNumber != null) {
+            user.setPhoneNumber(phoneNumber);
+        }
+
+        if (location != null) {
+            user.setLocation(location);
+        }
+
+        return userRepository.save(user);
+    }
+
     private boolean isTokenExpired(final LocalDateTime tokenCreationDate) {
         LocalDateTime now = LocalDateTime.now();
         Duration diff = Duration.between(tokenCreationDate, now);
@@ -289,7 +310,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 "      <td width=\"10\" valign=\"middle\"><br></td>\n" +
                 "      <td style=\"font-family:Helvetica,Arial,sans-serif;font-size:19px;line-height:1.315789474;max-width:560px\">\n" +
                 "        \n" +
-                "            <p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\">Hi " + name + ",</p><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> Thank you for registering. Please click on the below link to activate your account: </p><blockquote style=\"Margin:0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\"><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> <a href=\"" + link + "\">Activate Now</a> </p></blockquote>\n Link will expire in 15 minutes. <p>See you soon</p>" +
+                "            <p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\">Hi " + name + ",</p><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> Thank you for registering to Oasys Africa. Please click on the below link to activate your account: </p><blockquote style=\"Margin:0 0 20px 0;border-left:10px solid #b1b4b6;padding:15px 0 0.1px 15px;font-size:19px;line-height:25px\"><p style=\"Margin:0 0 20px 0;font-size:19px;line-height:25px;color:#0b0c0c\"> <a href=\"" + link + "\">Activate Now</a> </p></blockquote>\n Link will expire in 15 minutes. <p>See you soon</p>" +
                 "        \n" +
                 "      </td>\n" +
                 "      <td width=\"10\" valign=\"middle\"><br></td>\n" +
